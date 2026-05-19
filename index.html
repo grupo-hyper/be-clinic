@@ -8,6 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@200;300;400;500;600&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/neuropol-x" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const _sb = supabase.createClient(
+  'https://kisteehhsgnyufyrvxxh.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtpc3RlZWhoc2dueXVmeXJ2eHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTUwMjYsImV4cCI6MjA5NDczMTAyNn0.lgWN7EkRvC9bQf97s6uaTb2a0yCmBo1US8aFbDCt_RM'
+);
+const PAGE_SLUG = 'be-clinic';
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -996,12 +1004,33 @@ tick(); setInterval(tick, 1000);
   });
 })();
 
-function handleVip(e) {
+async function handleVip(e) {
   e.preventDefault();
   const f = e.target;
-  console.log('Lead VIP:', { nome: f.nome.value, whatsapp: f.whatsapp.value, email: f.email.value });
+  const btn = f.querySelector('button[type="submit"]');
+  const payload = {
+    page_slug: PAGE_SLUG,
+    nome:      f.nome.value.trim(),
+    whatsapp:  f.whatsapp.value.trim(),
+    email:     f.email.value.trim()
+  };
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  const { error } = await _sb.from('leads').insert(payload);
+
+  if (error) {
+    console.error('Supabase error:', error);
+    btn.disabled = false;
+    btn.textContent = 'Quero entrar na lista VIP';
+    alert('Ocorreu um erro. Tente novamente.');
+    return;
+  }
+
   if (typeof fbq !== 'undefined') fbq('track', 'Lead', { content_name: 'Be Clinic VIP' });
   if (typeof gtag !== 'undefined') gtag('event', 'generate_lead', { event_category: 'be_clinic_vip' });
+
   f.innerHTML = `<div style="text-align:center;padding:40px 0"><div style="font-family:'Cormorant Garamond',serif;font-size:56px;color:#D4BB8A;margin-bottom:24px">✓</div><h3 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#F6F5EC;font-weight:400;margin-bottom:16px">Você está na lista.</h3><p style="font-size:14px;color:rgba(246,245,236,0.7);line-height:1.7;max-width:360px;margin:0 auto">Avisaremos por WhatsApp e e-mail quando tivermos novidades oficiais.</p></div>`;
 }
 </script>
