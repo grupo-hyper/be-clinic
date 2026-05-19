@@ -568,8 +568,8 @@ footer{padding:80px 32px 48px;background:var(--ink);text-align:center}
   <section class="tech-section" id="sec-4" data-dark="true">
     <div class="section-head">
       <span class="section-tag">Tecnologia <span style="font-family:'Neuropol X','Manrope',sans-serif;font-style:normal;letter-spacing:0.06em">Be</span> Clinic</span>
-      <h2 class="section-title">Equipamentos que <em>ainda não</em><br>chegaram ao Rio.</h2>
-      <p class="section-lead">A tecnologia da <span style="font-family:'Neuropol X','Manrope',sans-serif;font-style:normal;letter-spacing:0.06em;font-size:0.9em">Be</span> Clinic não é detalhe técnico — é parte central da experiência.</p>
+      <h2 class="section-title">A tecnologia que o Rio<br>só encontra <em>aqui</em>.</h2>
+      <p class="section-lead">A <span style="font-family:'Neuropol X','Manrope',sans-serif;font-style:normal;letter-spacing:0.06em;font-size:0.9em">Be</span> Clinic é o único endereço no Rio de Janeiro com todos esses equipamentos reunidos em um só lugar.</p>
     </div>
     <div class="tech-grid">
       <div class="tech-card">
@@ -625,7 +625,7 @@ footer{padding:80px 32px 48px;background:var(--ink);text-align:center}
         <div class="tc-content">
           <div class="tech-badge">Wellness &amp; Recovery</div>
           <h3 class="tech-name">Wellness Tech</h3>
-          <div class="tech-spec">Infravermelha · LED · Contraste</div>
+          <div class="tech-spec">Infravermelho · LED · Contraste</div>
           <p class="tech-desc">Sauna infravermelha, LEDterapia e contraste térmico guiados por protocolo clínico. Recuperação de alta performance para quem não aceita menos.</p>
         </div>
         <div class="tc-cloud">
@@ -999,13 +999,16 @@ tick(); setInterval(tick, 1000);
     bgObserver.observe(card);
     const cloudVid = card.querySelector('.tc-cloud-video');
     if (!cloudVid) return;
-    card.addEventListener('mouseenter', () => {
+    const playCloud = () => {
+      cloudVid.load();
       cloudVid.currentTime = 0;
       cloudVid.play().catch(() => {});
-    });
-    card.addEventListener('mouseleave', () => {
-      cloudVid.pause();
-    });
+    };
+    const pauseCloud = () => { cloudVid.pause(); };
+    card.addEventListener('mouseenter', playCloud);
+    card.addEventListener('mouseleave', pauseCloud);
+    card.addEventListener('touchstart', playCloud, {passive:true});
+    card.addEventListener('touchend', pauseCloud, {passive:true});
   });
 })();
 
