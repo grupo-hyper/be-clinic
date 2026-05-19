@@ -116,12 +116,10 @@ html,body{background:var(--white-beige);color:var(--text);font-family:'Manrope',
   transition:opacity 0.6s
 }
 #loadingOverlay.done{opacity:0;pointer-events:none}
-.load-logo{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;
-  letter-spacing:0.5em;color:var(--white-beige)}
-.load-logo em{color:var(--bronze);font-style:italic}
-.load-bar-wrap{width:200px;height:1px;background:rgba(255,255,255,0.1)}
+.load-logo{display:block;height:48px;width:auto;opacity:0.95;filter:brightness(0) invert(1)}
+.load-bar-wrap{width:160px;height:1px;background:rgba(255,255,255,0.1)}
 .load-bar{height:100%;background:var(--bronze);width:0%;transition:width 0.15s}
-.load-text{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(246,245,236,0.4)}
+.load-text{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(246,245,236,0.35)}
 
 /* CONTEÚDO PRINCIPAL — oculto até hero terminar */
 #mainContent{display:none}
@@ -431,7 +429,7 @@ footer{padding:80px 32px 48px;background:var(--ink);text-align:center}
 <body>
 
 <div id="loadingOverlay">
-  <div class="load-logo">Be <em>Clinic</em></div>
+  <img class="load-logo" src="assets/be_logo.png" alt="BE">
   <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
   <div class="load-text">Carregando experiência…</div>
 </div>
