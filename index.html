@@ -7,7 +7,13 @@
 <meta name="description" content="A expansão da BE está chegando. Inauguração 15.08.2026 · Vogue Square · Barra da Tijuca.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-<link href="https://fonts.cdnfonts.com/css/neuropol-x" rel="stylesheet">
+<style>
+@font-face{
+  font-family:'Neuropol X';
+  src:url('assets/neuropol-x.otf') format('opentype');
+  font-weight:normal;font-style:normal;font-display:swap
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const _sb = supabase.createClient(
@@ -153,8 +159,8 @@ html,body{background:var(--white-beige);color:var(--text);font-family:'Manrope',
 /* PILARES */
 .pillars-section{padding:140px 32px;background:var(--white-beige)}
 .section-head{max-width:720px;margin:0 auto 80px;text-align:center}
-.section-tag{font-size:11px;letter-spacing:0.38em;text-transform:uppercase;
-  color:var(--bronze);font-weight:500;margin-bottom:24px;display:block}
+.section-tag{font-family:'Neuropol X','Manrope',sans-serif;font-size:11px;letter-spacing:0.38em;text-transform:uppercase;
+  color:var(--bronze);font-weight:400;margin-bottom:24px;display:block}
 .section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,4.5vw,54px);
   font-weight:300;line-height:1.1;color:var(--olive-deep);margin-bottom:20px;letter-spacing:-0.01em}
 .section-title em{font-style:italic;color:var(--bronze);font-weight:400}
@@ -726,7 +732,7 @@ footer{padding:80px 32px 48px;background:var(--ink);text-align:center}
     <div class="foot-logo"><span class="brand-be">Be</span> <em>Clinic</em></div>
     <div class="foot-tagline">Luxury Wellness & Performance</div>
     <div class="foot-text">Inauguração 15 de Agosto de 2026<br>Shopping Vogue Square · Barra da Tijuca · Rio de Janeiro</div>
-    <div class="foot-by">By BE Concept · Dra. Larissa Bastos</div>
+    <div class="foot-by">By <span style="font-family:'Neuropol X','Manrope',sans-serif;letter-spacing:0.06em">BE</span> Concept · Dra. Larissa Bastos</div>
   </footer>
 
 </div><!-- /mainContent -->
