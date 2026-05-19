@@ -154,14 +154,15 @@ html,body{background:var(--white-beige);color:var(--text);font-family:'Manrope',
 .scene-cta{
   display:inline-block;margin-top:44px;
   padding:20px 56px;border-radius:2px;
-  background:var(--white-beige);color:var(--olive-deep);
+  background:rgba(246,245,236,0.55);backdrop-filter:blur(6px);color:var(--white-beige);
   font-family:'Neuropol X','Manrope',sans-serif;
   font-size:11px;letter-spacing:0.24em;text-transform:uppercase;
   text-decoration:none;font-weight:400;
-  box-shadow:0 4px 24px rgba(0,0,0,0.4);
+  border:1px solid rgba(246,245,236,0.35);
+  box-shadow:0 4px 24px rgba(0,0,0,0.25);
   transition:background 0.3s,transform 0.25s,box-shadow 0.3s
 }
-.scene-cta:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 10px 36px rgba(0,0,0,0.5)}
+.scene-cta:hover{background:rgba(212,187,138,0.85);color:var(--olive-deep);border-color:transparent;transform:translateY(-2px);box-shadow:0 10px 36px rgba(0,0,0,0.4)}
 .scene-text.on-light .scene-cta{background:var(--olive-deep);color:var(--white-beige);box-shadow:0 4px 24px rgba(0,0,0,0.25)}
 .scene-text.on-light .scene-cta:hover{background:var(--ink);transform:translateY(-2px)}
 @media(max-width:600px){
