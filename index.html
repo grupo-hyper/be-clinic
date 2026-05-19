@@ -313,6 +313,23 @@ footer{padding:80px 32px 48px;background:var(--ink);text-align:center}
 .foot-by{margin-top:32px;font-size:11px;color:rgba(246,245,236,0.3);
   letter-spacing:0.2em;text-transform:uppercase}
 
+/* SOUND TOGGLE */
+.sound-btn{
+  position:fixed;bottom:28px;left:28px;z-index:90;
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(15,14,10,0.55);backdrop-filter:blur(10px);
+  border:1px solid rgba(212,187,138,0.25);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.3s;opacity:0;pointer-events:none
+}
+.sound-btn.visible{opacity:1;pointer-events:auto}
+.sound-btn:hover{background:rgba(15,14,10,0.8);border-color:rgba(212,187,138,0.55)}
+.sound-btn svg{width:16px;height:16px;fill:none;stroke:var(--gold-light);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:opacity 0.2s}
+.sound-btn .icon-muted{display:none}
+.sound-btn.muted .icon-on{display:none}
+.sound-btn.muted .icon-muted{display:block}
+@media(max-width:600px){.sound-btn{bottom:20px;left:16px;width:36px;height:36px}}
+
 /* SECTION TRANSITIONS — gradientes suaves entre seções */
 
 /* sec-1 (dark #2A241A) → sec-2 (white-beige) */
@@ -537,6 +554,13 @@ footer{padding:80px 32px 48px;background:var(--ink);text-align:center}
   <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
   <div class="load-text">Carregando experiência…</div>
 </div>
+
+<audio id="bgMusic" src="assets/ambient.mp3" loop preload="none"></audio>
+
+<button class="sound-btn" id="soundBtn" aria-label="Som ambiente">
+  <svg class="icon-on" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+  <svg class="icon-muted" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+</button>
 
 <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
 
@@ -1140,6 +1164,53 @@ async function handleVip(e) {
 
   f.innerHTML = `<div style="text-align:center;padding:40px 0"><div style="font-family:'Cormorant Garamond',serif;font-size:56px;color:#D4BB8A;margin-bottom:24px">✓</div><h3 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#F6F5EC;font-weight:400;margin-bottom:16px">Você está na lista.</h3><p style="font-size:14px;color:rgba(246,245,236,0.7);line-height:1.7;max-width:360px;margin:0 auto">Avisaremos por WhatsApp e e-mail quando tivermos novidades oficiais.</p></div>`;
 }
+
+/* ── MÚSICA AMBIENTE ────────────────────────────────── */
+(function(){
+  const music   = document.getElementById('bgMusic');
+  const btn     = document.getElementById('soundBtn');
+  const TARGET  = 0.10;   // volume alvo (0–1)
+  const FADE_MS = 3000;   // fade-in de 3 s
+  let started = false;
+  let muted   = false;
+
+  function fadeIn(){
+    music.volume = 0;
+    music.play().then(()=>{
+      const step = 16;
+      const inc  = TARGET / (FADE_MS / step);
+      const iv   = setInterval(()=>{
+        if(music.volume + inc >= TARGET){ music.volume = TARGET; clearInterval(iv); }
+        else { music.volume += inc; }
+      }, step);
+      btn.classList.add('visible');
+    }).catch(()=>{});
+  }
+
+  // Tenta iniciar na primeira interação do usuário
+  function tryStart(){
+    if(started) return;
+    started = true;
+    fadeIn();
+  }
+
+  ['scroll','click','touchstart','keydown'].forEach(ev =>
+    document.addEventListener(ev, tryStart, {once:true, passive:true})
+  );
+
+  // Toggle mute/unmute
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    muted = !muted;
+    if(muted){
+      music.volume = 0;
+      btn.classList.add('muted');
+    } else {
+      music.volume = TARGET;
+      btn.classList.remove('muted');
+    }
+  });
+})();
 </script>
 </body>
 </html>
