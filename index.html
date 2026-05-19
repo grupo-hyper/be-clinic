@@ -314,6 +314,58 @@ footer{padding:80px 32px 48px;background:var(--ink);text-align:center}
 .foot-by{margin-top:32px;font-size:11px;color:rgba(246,245,236,0.3);
   letter-spacing:0.2em;text-transform:uppercase}
 
+/* ── CUSTOM CURSOR ── */
+@media(pointer:fine){
+  *{cursor:none!important}
+  #cur-dot{
+    position:fixed;z-index:9999;width:6px;height:6px;border-radius:50%;
+    background:var(--gold-light);pointer-events:none;
+    transform:translate(-50%,-50%);
+    transition:width .2s,height .2s,opacity .3s
+  }
+  #cur-ring{
+    position:fixed;z-index:9998;width:32px;height:32px;border-radius:50%;
+    border:1px solid rgba(212,187,138,0.55);pointer-events:none;
+    transform:translate(-50%,-50%);
+    transition:width .3s,height .3s,border-color .3s
+  }
+  body.cur-hover #cur-dot{width:10px;height:10px}
+  body.cur-hover #cur-ring{width:52px;height:52px;border-color:rgba(212,187,138,0.9)}
+  body.cur-dark #cur-dot{background:var(--bronze)}
+  body.cur-dark #cur-ring{border-color:rgba(184,153,104,0.55)}
+}
+
+/* ── WORD REVEAL ── */
+.wr{
+  display:inline-block;opacity:0;transform:translateY(20px);
+  transition:opacity .6s cubic-bezier(.22,.61,.36,1),transform .6s cubic-bezier(.22,.61,.36,1)
+}
+.scene-text.show .wr,.hero-text.show .wr{opacity:1;transform:translateY(0)}
+
+/* ── SOUND PROMPT ── */
+#soundPrompt{
+  display:none;flex-direction:column;align-items:center;gap:18px;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .5s,transform .5s
+}
+#soundPrompt.show{display:flex}
+#soundPrompt.visible{opacity:1;transform:translateY(0)}
+.sp-enter{
+  padding:15px 44px;background:var(--gold-light);color:var(--olive-deep);
+  border:none;border-radius:1px;cursor:pointer;
+  font-family:'Neuropol X','Manrope',sans-serif;
+  font-size:11px;letter-spacing:0.22em;text-transform:uppercase;font-weight:400;
+  transition:background .3s,transform .2s
+}
+.sp-enter:hover{background:var(--white-beige);transform:translateY(-2px)}
+.sp-silent{
+  background:none;border:none;cursor:pointer;
+  font-size:10px;color:rgba(246,245,236,0.38);
+  font-family:'Manrope',sans-serif;letter-spacing:0.14em;text-transform:uppercase;
+  transition:color .3s
+}
+.sp-silent:hover{color:rgba(246,245,236,0.65)}
+
 /* SOUND TOGGLE */
 .sound-btn{
   position:fixed;bottom:28px;left:28px;z-index:90;
@@ -550,10 +602,17 @@ footer{padding:80px 32px 48px;background:var(--ink);text-align:center}
 </head>
 <body>
 
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
 <div id="loadingOverlay">
   <img class="load-logo" src="assets/be_logo.png" alt="BE">
   <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
-  <div class="load-text">Carregando experiência…</div>
+  <div class="load-text" id="loadText">Carregando experiência…</div>
+  <div id="soundPrompt">
+    <button class="sp-enter" id="spEnter">▶ &nbsp;Entrar com som</button>
+    <button class="sp-silent" id="spSilent">continuar sem som</button>
+  </div>
 </div>
 
 <audio id="bgMusic" src="assets/ambient.mp3" loop preload="none"></audio>
@@ -910,13 +969,18 @@ setTimeout(() => {
   video.addEventListener('loadedmetadata', () => {
     loadBar.style.width = '100%';
     setTimeout(() => {
-      overlay.classList.add('done');
+      // Mostrar prompt de som em vez de fechar direto
+      const loadText = document.getElementById('loadText');
+      const prompt   = document.getElementById('soundPrompt');
+      if (loadText) loadText.style.display = 'none';
+      prompt.classList.add('show');
+      requestAnimationFrame(() => requestAnimationFrame(() => prompt.classList.add('visible')));
       videoReady = true;
-      heroText.classList.add('show');
-    }, 300);
+    }, 400);
   });
   video.addEventListener('error', () => {
     overlay.classList.add('done');
+    heroText.classList.add('show');
     unlockHero();
   });
 }, 80);
@@ -1165,51 +1229,109 @@ async function handleVip(e) {
   f.innerHTML = `<div style="text-align:center;padding:40px 0"><div style="font-family:'Cormorant Garamond',serif;font-size:56px;color:#D4BB8A;margin-bottom:24px">✓</div><h3 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#F6F5EC;font-weight:400;margin-bottom:16px">Você está na lista.</h3><p style="font-size:14px;color:rgba(246,245,236,0.7);line-height:1.7;max-width:360px;margin:0 auto">Avisaremos por WhatsApp e e-mail quando tivermos novidades oficiais.</p></div>`;
 }
 
-/* ── MÚSICA AMBIENTE ────────────────────────────────── */
+/* ── MÚSICA + SOUND PROMPT ──────────────────────────── */
 (function(){
-  const music   = document.getElementById('bgMusic');
-  const btn     = document.getElementById('soundBtn');
-  const TARGET  = 0.10;   // volume alvo (0–1)
-  const FADE_MS = 3000;   // fade-in de 3 s
-  let started = false;
-  let muted   = false;
+  const music  = document.getElementById('bgMusic');
+  const btn    = document.getElementById('soundBtn');
+  const spEnter  = document.getElementById('spEnter');
+  const spSilent = document.getElementById('spSilent');
+  const overlay  = document.getElementById('loadingOverlay');
+  const TARGET = 0.10, FADE_MS = 2500;
+  let muted = false;
 
   function fadeIn(){
     music.volume = 0;
     music.play().then(()=>{
-      const step = 16;
-      const inc  = TARGET / (FADE_MS / step);
-      const iv   = setInterval(()=>{
+      const step = 16, inc = TARGET / (FADE_MS / step);
+      const iv = setInterval(()=>{
         if(music.volume + inc >= TARGET){ music.volume = TARGET; clearInterval(iv); }
-        else { music.volume += inc; }
+        else music.volume += inc;
       }, step);
       btn.classList.add('visible');
     }).catch(()=>{});
   }
 
-  // Tenta iniciar na primeira interação do usuário
-  function tryStart(){
-    if(started) return;
-    started = true;
-    fadeIn();
+  function enterSite(withSound){
+    overlay.classList.add('done');
+    heroText.classList.add('show');
+    if(withSound) fadeIn();
   }
 
-  ['scroll','click','touchstart','keydown'].forEach(ev =>
-    document.addEventListener(ev, tryStart, {once:true, passive:true})
-  );
+  spEnter && spEnter.addEventListener('click', () => enterSite(true));
+  spSilent && spSilent.addEventListener('click', () => enterSite(false));
 
-  // Toggle mute/unmute
+  // Toggle mute
   btn.addEventListener('click', e => {
     e.stopPropagation();
     muted = !muted;
-    if(muted){
-      music.volume = 0;
-      btn.classList.add('muted');
-    } else {
-      music.volume = TARGET;
-      btn.classList.remove('muted');
-    }
+    music.volume = muted ? 0 : TARGET;
+    btn.classList.toggle('muted', muted);
   });
+})();
+
+/* ── CURSOR CUSTOMIZADO ─────────────────────────────── */
+(function(){
+  if(!window.matchMedia('(pointer:fine)').matches) return;
+  const dot  = document.getElementById('cur-dot');
+  const ring = document.getElementById('cur-ring');
+  let mx=-100, my=-100, rx=-100, ry=-100;
+
+  document.addEventListener('mousemove', e=>{
+    mx=e.clientX; my=e.clientY;
+    dot.style.left=mx+'px'; dot.style.top=my+'px';
+  });
+
+  (function anim(){
+    rx += (mx-rx)*0.10; ry += (my-ry)*0.10;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(anim);
+  })();
+
+  const hoverEls = 'a,button,.tech-card,.pillar,.scene-cta,.vip-btn,.sound-btn';
+  document.querySelectorAll(hoverEls).forEach(el=>{
+    el.addEventListener('mouseenter',()=>document.body.classList.add('cur-hover'));
+    el.addEventListener('mouseleave',()=>document.body.classList.remove('cur-hover'));
+  });
+
+  // Cursor mais escuro em seções claras
+  const lightSections = document.querySelectorAll('.pillars-section,.dra-section,.countdown-section');
+  const ro = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting) document.body.classList.add('cur-dark');
+      else document.body.classList.remove('cur-dark');
+    });
+  },{threshold:0.3});
+  lightSections.forEach(s=>ro.observe(s));
+})();
+
+/* ── WORD REVEAL ────────────────────────────────────── */
+(function(){
+  function wrapWords(el){
+    const nodes = Array.from(el.childNodes);
+    el.innerHTML='';
+    let idx=0;
+    nodes.forEach(node=>{
+      if(node.nodeType===3){
+        node.textContent.split(/(\s+)/).forEach(part=>{
+          if(!part.trim()){ el.appendChild(document.createTextNode(part)); return; }
+          const s=document.createElement('span');
+          s.className='wr';
+          s.textContent=part;
+          s.style.transitionDelay=(idx++*0.07)+'s';
+          el.appendChild(s);
+        });
+      } else if(node.nodeName==='BR'){
+        el.appendChild(document.createElement('br'));
+      } else {
+        const s=document.createElement('span');
+        s.className='wr';
+        s.style.transitionDelay=(idx++*0.07)+'s';
+        s.appendChild(node.cloneNode(true));
+        el.appendChild(s);
+      }
+    });
+  }
+  document.querySelectorAll('.scene-title,.hero-title').forEach(wrapWords);
 })();
 </script>
 </body>
