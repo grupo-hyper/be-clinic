@@ -315,14 +315,14 @@ footer{padding:80px 32px 48px;background:var(--ink);text-align:center}
   letter-spacing:0.2em;text-transform:uppercase}
 
 /* ── CUSTOM CURSOR ── */
+#cur-canvas{position:fixed;inset:0;pointer-events:none;z-index:9997;display:none}
+#cur-dot{position:fixed;z-index:9999;width:5px;height:5px;border-radius:50%;
+  background:rgba(212,187,138,0.9);pointer-events:none;
+  transform:translate(-50%,-50%);mix-blend-mode:screen;display:none}
 @media(pointer:fine){
   *{cursor:none!important}
-  #cur-canvas{position:fixed;inset:0;pointer-events:none;z-index:9997}
-  #cur-dot{
-    position:fixed;z-index:9999;width:5px;height:5px;border-radius:50%;
-    background:rgba(212,187,138,0.9);pointer-events:none;
-    transform:translate(-50%,-50%);mix-blend-mode:screen
-  }
+  #cur-canvas{display:block}
+  #cur-dot{display:block}
 }
 
 /* ── WORD REVEAL ── */
